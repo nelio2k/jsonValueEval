@@ -14,8 +14,8 @@ func generateRandomData() ([][]byte, int, error) {
 	//	}
 	//	fmt.Printf("TotalBytes: %v TotalEntries: %v\n", totalBytes, len(data))
 
-	mbsToGenerate := 1
-	avgBytesOfOneRecord := 1800
+	mbsToGenerate := 100
+	avgBytesOfOneRecord := 77
 	rowsToGenerate := mbsToGenerate * 1048576 / avgBytesOfOneRecord
 	data := make([][]byte, rowsToGenerate)
 	totalBytes, err := genRandomUsers(32534059803498589, data)
@@ -27,6 +27,7 @@ func generateRandomData() ([][]byte, int, error) {
 }
 
 func BenchmarkSimpleMatcher(b *testing.B) {
+	//	b.SetParallelism(4)
 	m := NewFlexibleMatcher()
 	data, totalBytes, err := generateRandomData()
 	if err != nil || len(data) == 0 {
@@ -42,13 +43,15 @@ func BenchmarkSimpleMatcher(b *testing.B) {
 	}
 
 	// Pre-make parameters and re-use
-	parameters := make(map[string]interface{}, 3)
+	//	parameters := make(map[string]interface{}, 3)
+	parameters := NewParameterArray(3)
 	b.SetBytes(int64(totalBytes))
 	b.ResetTimer()
 
 	for j := 0; j < b.N; j++ {
+		//		garbageTracker.Start()
 		for i := 0; i < len(data); i++ {
-			_, err := m.Match(data[i], expression, parameters)
+			_, err := m.Match(data[i], expression, *parameters)
 
 			if err != nil {
 				b.Fatalf("Matcher error: %s", err)

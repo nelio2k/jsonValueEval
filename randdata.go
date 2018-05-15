@@ -61,6 +61,7 @@ func genRandomUsers(seed int64, array [][]byte) (int, error) {
 			}
 		}
 		user["friends"] = friends
+
 		data, err := json.Marshal(user)
 		if err != nil {
 			return totalBytes, err
